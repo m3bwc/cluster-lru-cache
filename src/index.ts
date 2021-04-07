@@ -166,7 +166,7 @@ export class LruCache<P, V> {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
         if (!Boolean(id)) {
-          return Err(new Error('Id is not provided'));
+          return Err(new Error('Id was not provided'));
         }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.get(hash)))
@@ -204,7 +204,7 @@ export class LruCache<P, V> {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
         if (!Boolean(id)) {
-          return Err(new Error('Id is not provided'));
+          return Err(new Error('Id was not provided'));
         }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.set(hash, value)))
@@ -242,7 +242,7 @@ export class LruCache<P, V> {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
         if (!Boolean(id)) {
-          return Err(new Error('Id is not provided'));
+          return Err(new Error('Id was not provided'));
         }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.has(hash)))
