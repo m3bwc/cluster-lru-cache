@@ -1,7 +1,7 @@
 {
-  "name": "typescript-backend-template",
+  "name": "@datapain/cluster-lru-cache",
   "version": "0.0.0",
-  "description": "A simple template for the nodejs project which includes typescript and jest",
+  "description": "Cache service realization in clustered systems",
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -20,11 +20,9 @@
     "url": "git+https://github.com/datapain/typescript-backend-template.git"
   },
   "keywords": [
-    "template",
-    "typescript",
-    "nodejs",
-    "backend",
-    "bootstrap"
+    "cluster",
+    "lru",
+    "cache"
   ],
   "author": "Konstantin Tsepelev <strangeratthedoor@gmail.com> (https://github.com/datapain)",
   "license": "MIT",
