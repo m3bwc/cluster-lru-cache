@@ -3,7 +3,6 @@ import cluster from 'cluster';
 import objecthash from 'object-hash';
 import { Result, Ok, Err } from 'ts-results';
 import { nanoid } from 'nanoid';
-import EventEmitter from 'events';
 export interface LruCacheConfiguration<K, V> extends LRU.Options<K, V> {
   isWorker: boolean;
   enabled: boolean;
@@ -92,7 +91,7 @@ export class LruCacheMessage<V, P>
   }
 }
 
-export class LruCache<P, V> extends EventEmitter {
+export class LruCache<P, V> {
   private cache: LRU<string, V>;
   private isWorker: boolean;
   private enabled: boolean;
