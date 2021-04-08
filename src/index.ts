@@ -165,9 +165,6 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        if (!Boolean(id)) {
-          return Err(new Error('Id was not provided'));
-        }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.get(hash)))
           .andThen((value) => this.response(LruCacheMessageResult.of<V>(id, value)))
@@ -203,9 +200,6 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        if (!Boolean(id)) {
-          return Err(new Error('Id was not provided'));
-        }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.set(hash, value)))
           .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
@@ -241,9 +235,6 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        if (!Boolean(id)) {
-          return Err(new Error('Id was not provided'));
-        }
         return this.hash(payload)
           .andThen((hash) => Ok(this.cache.has(hash)))
           .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
