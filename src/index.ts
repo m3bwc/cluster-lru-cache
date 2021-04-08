@@ -18,11 +18,15 @@ export enum LruCacheAction {
   GET = 'get',
   SET = 'set',
   HAS = 'has',
+  GET_BY_HASH = 'get-by-hash',
+  SET_BY_HASH = 'set-by-hash',
+  HAS_BY_HASH = 'has-by-hash',
 }
 
 export interface LruCacheMessageInterface<V, P> {
   readonly payload?: Maybe<P>;
   readonly value?: Maybe<V>;
+  readonly hash?: Maybe<string>;
   readonly action: LruCacheAction;
 }
 
@@ -61,11 +65,13 @@ export class LruCacheMessage<V, P>
   readonly id: string;
   readonly action: LruCacheAction;
   readonly name: string;
+  readonly hash: string;
 
   private constructor(opt: LruCacheMessageInterface<V, P>) {
     this.payload = opt.payload;
     this.value = opt.value;
     this.action = opt.action;
+    this.hash = opt.hash;
     this.id = nanoid();
     this.name = LRU_CACHE_MESSAGE_NAME;
   }
@@ -84,6 +90,7 @@ export class LruCacheMessage<V, P>
     return {
       payload: this.payload,
       value: this.value,
+      hash: this.hash,
       action: this.action,
       id: this.id,
       name: this.name,
@@ -114,6 +121,15 @@ export class LruCache<P, V> {
               }
               case LruCacheAction.SET: {
                 return this.set(msg.payload, msg.value, msg.id);
+              }
+              case LruCacheAction.GET_BY_HASH: {
+                return this.getByHash(msg.hash, msg.id);
+              }
+              case LruCacheAction.HAS_BY_HASH: {
+                return this.hasByHash(msg.hash, msg.id);
+              }
+              case LruCacheAction.SET_BY_HASH: {
+                return this.setByHash(msg.hash, msg.value, msg.id);
               }
             }
           }
@@ -244,6 +260,107 @@ export class LruCache<P, V> {
           const messageSent = this.request(
             LruCacheMessage.of<never, P>({
               payload,
+              action: LruCacheAction.HAS,
+            }),
+          );
+          if (messageSent.ok) {
+            const message = messageSent.unwrap();
+            const returnResponse = (msg: Maybe<LruCacheMessageResult<boolean>>): void => {
+              if (msg?.id === message.id) {
+                process.removeListener('message', returnResponse);
+                resolve(Ok(msg.value));
+              }
+            };
+            process.on('message', returnResponse);
+          } else {
+            reject(messageSent);
+          }
+        });
+      }
+    }
+  }
+
+  public async getByHash(hash: string, id?: string): Promise<Result<Maybe<V>, Error>> {
+    const isEnabled = this.isEnabled();
+    if (isEnabled.ok) {
+      const isMaster = this.isMaster();
+      if (isMaster.ok) {
+        return Ok(this.cache.get(hash))
+          .andThen((value) => this.response(LruCacheMessageResult.of<V>(id, value)))
+          .andThen((response) => Ok(response.value));
+      } else {
+        return new Promise((resolve, reject) => {
+          const messageSent = this.request(
+            LruCacheMessage.of<never, string>({
+              payload: hash,
+              action: LruCacheAction.GET_BY_HASH,
+            }),
+          );
+          if (messageSent.ok) {
+            const message = messageSent.unwrap();
+            const returnResponse = (msg: Maybe<LruCacheMessageResult<V>>): void => {
+              if (msg?.id === message.id) {
+                process.removeListener('message', returnResponse);
+                resolve(Ok(msg.value));
+              }
+            };
+            process.on('message', returnResponse);
+          } else {
+            reject(messageSent);
+          }
+        });
+      }
+    }
+    return isEnabled as Result<V, Error>;
+  }
+
+  public async setByHash(hash: string, value: V, id?: string): Promise<Result<boolean, Error>> {
+    const isEnabled = this.isEnabled();
+    if (isEnabled.ok) {
+      const isMaster = this.isMaster();
+      if (isMaster.ok) {
+        return Ok(this.cache.set(hash, value))
+          .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
+          .andThen((response) => Ok(response.value));
+      } else {
+        return new Promise((resolve, reject) => {
+          const messageSent = this.request(
+            LruCacheMessage.of<V, string>({
+              payload: hash,
+              value,
+              action: LruCacheAction.SET_BY_HASH,
+            }),
+          );
+          if (messageSent.ok) {
+            const message = messageSent.unwrap();
+            const returnResponse = (msg: Maybe<LruCacheMessageResult<boolean>>): void => {
+              if (msg?.id === message.id) {
+                process.removeListener('message', returnResponse);
+                resolve(Ok(msg.value));
+              }
+            };
+            process.on('message', returnResponse);
+          } else {
+            reject(messageSent);
+          }
+        });
+      }
+    }
+  }
+
+  public async hasByHash(hash: string, id?: string): Promise<Result<boolean, Error>> {
+    const isEnabled = this.isEnabled();
+    if (isEnabled.ok) {
+      const isMaster = this.isMaster();
+      if (isMaster.ok) {
+        return Ok(this.cache.has(hash))
+          .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
+          .andThen((response) => Ok(response.value));
+      } else {
+        return new Promise((resolve, reject) => {
+          const messageSent = this.request(
+            LruCacheMessage.of<never, string>({
+              payload: hash,
               action: LruCacheAction.HAS,
             }),
           );
