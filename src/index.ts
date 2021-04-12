@@ -244,6 +244,7 @@ export class LruCache<P, V> {
         });
       }
     }
+    return isEnabled as Result<boolean, Error>;
   }
 
   public async has(payload: P, id?: string): Promise<Result<boolean, Error>> {
@@ -278,6 +279,7 @@ export class LruCache<P, V> {
         });
       }
     }
+    return isEnabled as Result<boolean, Error>;
   }
 
   public async getByHash(hash: string, id?: string): Promise<Result<Maybe<V>, Error>> {
@@ -346,6 +348,7 @@ export class LruCache<P, V> {
         });
       }
     }
+    return isEnabled as Result<boolean, Error>;
   }
 
   public async hasByHash(hash: string, id?: string): Promise<Result<boolean, Error>> {
@@ -379,5 +382,6 @@ export class LruCache<P, V> {
         });
       }
     }
+    return isEnabled as Result<boolean, Error>;
   }
 }
