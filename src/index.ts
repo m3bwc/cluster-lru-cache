@@ -102,10 +102,13 @@ export class LruCacheMessage<V, P>
 export class LruCache<P, V> {
   private cache: LRU<string, V>;
   private isWorker: boolean;
-  private enabled: boolean;
+  private _enabled: boolean;
+  public get enabled(): boolean {
+    return this._enabled;
+  }
 
   public init(config: LruCacheConfiguration<string, V>): void {
-    this.enabled = config.enabled;
+    this._enabled = config.enabled;
     this.isWorker = config.isWorker;
     this.cache = new LRU<string, V>(config);
 
