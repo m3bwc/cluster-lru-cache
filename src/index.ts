@@ -21,6 +21,7 @@ export enum LruCacheAction {
   GET_BY_HASH = 'get-by-hash',
   SET_BY_HASH = 'set-by-hash',
   HAS_BY_HASH = 'has-by-hash',
+  SET_STATUS = 'set-status',
   RESET = 'reset',
 }
 
@@ -112,38 +113,53 @@ export class LruCache<P, V> {
     this.isWorker = config.isWorker;
     this.cache = new LRU<string, V>(config);
 
-    this.isMaster().andThen(() => {
-      for (const id in cluster.workers) {
-        cluster.workers[id].on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
+    this.isMaster()
+      .andThen(() => {
+        for (const id in cluster.workers) {
+          cluster.workers[id].on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
+            if (LruCacheMessage.isMessage(msg)) {
+              switch (msg.action) {
+                case LruCacheAction.GET: {
+                  return this.get(msg.payload, msg.id);
+                }
+                case LruCacheAction.HAS: {
+                  return this.has(msg.payload, msg.id);
+                }
+                case LruCacheAction.SET: {
+                  return this.set(msg.payload, msg.value, msg.id);
+                }
+                case LruCacheAction.GET_BY_HASH: {
+                  return this.getByHash(msg.hash, msg.id);
+                }
+                case LruCacheAction.HAS_BY_HASH: {
+                  return this.hasByHash(msg.hash, msg.id);
+                }
+                case LruCacheAction.SET_BY_HASH: {
+                  return this.setByHash(msg.hash, msg.value, msg.id);
+                }
+                case LruCacheAction.SET_STATUS: {
+                  return this.setStatus(Boolean(msg.payload));
+                }
+                case LruCacheAction.RESET: {
+                  return this.reset();
+                }
+              }
+            }
+          });
+        }
+        return Ok.EMPTY;
+      })
+      .mapErr(() => {
+        process.on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
           if (LruCacheMessage.isMessage(msg)) {
             switch (msg.action) {
-              case LruCacheAction.GET: {
-                return this.get(msg.payload, msg.id);
-              }
-              case LruCacheAction.HAS: {
-                return this.has(msg.payload, msg.id);
-              }
-              case LruCacheAction.SET: {
-                return this.set(msg.payload, msg.value, msg.id);
-              }
-              case LruCacheAction.GET_BY_HASH: {
-                return this.getByHash(msg.hash, msg.id);
-              }
-              case LruCacheAction.HAS_BY_HASH: {
-                return this.hasByHash(msg.hash, msg.id);
-              }
-              case LruCacheAction.SET_BY_HASH: {
-                return this.setByHash(msg.hash, msg.value, msg.id);
-              }
-              case LruCacheAction.RESET: {
-                return this.reset();
+              case LruCacheAction.SET_STATUS: {
+                this._enabled = Boolean(msg.payload);
               }
             }
           }
         });
-      }
-      return Ok.EMPTY;
-    });
+      });
   }
 
   private isEnabled(): Result<void, Error> {
@@ -159,6 +175,30 @@ export class LruCache<P, V> {
       return Ok(objecthash(payload));
     } catch (e) {
       return Err(e);
+    }
+  }
+
+  public async setStatus(payload: boolean): Promise<Result<boolean, Error>> {
+    const isMaster = this.isMaster();
+    if (isMaster.ok) {
+      this._enabled = payload;
+      return this.response(
+        LruCacheMessage.of<never, boolean>({
+          payload,
+          action: LruCacheAction.SET_STATUS,
+        }),
+      ).andThen(() => Ok(payload));
+    } else {
+      return new Promise((resolve, reject) => {
+        this.request(
+          LruCacheMessage.of<never, boolean>({
+            payload,
+            action: LruCacheAction.SET_STATUS,
+          }),
+        )
+          .map(() => resolve(Ok(payload)))
+          .mapErr(reject);
+      });
     }
   }
 
