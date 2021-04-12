@@ -2,8 +2,8 @@ import LRU from 'lru-cache';
 import cluster from 'cluster';
 import { Result, Ok, Err } from 'ts-results';
 import { nanoid } from 'nanoid';
-import { createHash } from 'crypto';
-import bfj from 'bfj';
+import hash from 'object-hash';
+
 export interface LruCacheConfiguration<K, V> extends LRU.Options<K, V> {
   isWorker: boolean;
   enabled: boolean;
@@ -173,11 +173,7 @@ export class LruCache<P, V> {
 
   public async hash(payload: unknown): Promise<Result<string, Error>> {
     try {
-      return Ok(
-        createHash('sha1')
-          .update(await bfj.stringify(payload), 'utf8')
-          .digest('hex'),
-      );
+      return Ok(hash(payload));
     } catch (e) {
       return Err(e);
     }
