@@ -112,10 +112,11 @@ export class LruCache<P, V> {
   public init(config: LruCacheConfiguration<string, V>): void {
     this._enabled = config.enabled;
     this.isWorker = config.isWorker;
-    this.cache = new LRU<string, V>(config);
 
     this.isMaster()
       .andThen(() => {
+        this.cache = new LRU<string, V>(config);
+
         for (const id in cluster.workers) {
           cluster.workers[id].on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
             if (LruCacheMessage.isMessage(msg)) {
