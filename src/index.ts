@@ -431,7 +431,7 @@ export class LruCache<P, V> {
           const messageSent = this.request(
             LruCacheMessage.of<never, string>({
               payload: hash,
-              action: LruCacheAction.HAS,
+              action: LruCacheAction.HAS_BY_HASH,
             }),
           );
           if (messageSent.ok) {
