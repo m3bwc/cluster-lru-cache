@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datapain/typescript-backend-template.git"
+    "url": "git+https://github.com/datapain/cluster-lru-cache"
   },
   "keywords": [
     "cluster",
@@ -27,7 +27,7 @@
   "author": "Konstantin Tsepelev <strangeratthedoor@gmail.com> (https://github.com/datapain)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/datapain/typescript-backend-template/issues"
+    "url": "https://github.com/datapain/cluster-lru-cache"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.0.1",
@@ -56,7 +56,7 @@
     "ts-node": "^9.1.1",
     "typescript": "~4.1.5"
   },
-  "homepage": "https://github.com/datapain/typescript-backend-template#readme",
+  "homepage": "https://github.com/datapain/cluster-lru-cache#readme",
   "jest": {
     "moduleFileExtensions": [
       "js",
