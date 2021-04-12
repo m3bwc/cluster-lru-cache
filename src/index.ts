@@ -366,7 +366,7 @@ export class LruCache<P, V> {
         return new Promise((resolve, reject) => {
           const messageSent = this.request(
             LruCacheMessage.of<never, string>({
-              payload: hash,
+              hash,
               action: LruCacheAction.GET_BY_HASH,
             }),
           );
@@ -400,7 +400,7 @@ export class LruCache<P, V> {
         return new Promise((resolve, reject) => {
           const messageSent = this.request(
             LruCacheMessage.of<V, string>({
-              payload: hash,
+              hash,
               value,
               action: LruCacheAction.SET_BY_HASH,
             }),
@@ -435,7 +435,7 @@ export class LruCache<P, V> {
         return new Promise((resolve, reject) => {
           const messageSent = this.request(
             LruCacheMessage.of<never, string>({
-              payload: hash,
+              hash,
               action: LruCacheAction.HAS_BY_HASH,
             }),
           );
