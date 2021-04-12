@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "npm start"
+  "exec": "node -r ts-node/register -r tsconfig-paths/register ./example"
 }

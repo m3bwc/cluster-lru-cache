@@ -1,8 +1,13 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "tests", "**/*spec.ts", "example", "**/jest.**.ts"],
+  "exclude": [
+      "node_modules",
+      "tests",
+      "example",
+      "**/*spec.ts",
+      "**/jest.**.ts"
+  ],
   "compilerOptions": {
-    "outDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "allowUnusedLabels": true,
@@ -15,7 +20,9 @@
     "experimentalDecorators": true,
     "noImplicitAny": false,
     "target": "ES6",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "module": "commonjs",
     "baseUrl": "./src",
     "allowSyntheticDefaultImports": true
