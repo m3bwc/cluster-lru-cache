@@ -21,6 +21,7 @@ export enum LruCacheAction {
   GET_BY_HASH = 'get-by-hash',
   SET_BY_HASH = 'set-by-hash',
   HAS_BY_HASH = 'has-by-hash',
+  RESET = 'reset',
 }
 
 export interface LruCacheMessageInterface<V, P> {
@@ -131,6 +132,9 @@ export class LruCache<P, V> {
               case LruCacheAction.SET_BY_HASH: {
                 return this.setByHash(msg.hash, msg.value, msg.id);
               }
+              case LruCacheAction.RESET: {
+                return this.reset();
+              }
             }
           }
         });
@@ -155,7 +159,27 @@ export class LruCache<P, V> {
     }
   }
 
-  private response<V>(result: LruCacheMessageResult<V>): Result<LruCacheMessageResult<V>, Error> {
+  public async reset(): Promise<Result<void, Error>> {
+    const isMaster = this.isMaster();
+    if (isMaster.ok) {
+      this.cache.reset();
+      return Ok.EMPTY;
+    } else {
+      return new Promise((resolve, reject) => {
+        this.request(
+          LruCacheMessage.of<never, never>({
+            action: LruCacheAction.RESET,
+          }),
+        )
+          .map(() => resolve(Ok.EMPTY))
+          .mapErr(reject);
+      });
+    }
+  }
+
+  private response<RV>(
+    result: LruCacheMessageResult<RV> | LruCacheMessage<never, RV>,
+  ): Result<LruCacheMessageResult<RV> | LruCacheMessage<never, RV>, Error> {
     try {
       for (const id in cluster.workers) {
         cluster.workers[id].send(result.toJSON());
