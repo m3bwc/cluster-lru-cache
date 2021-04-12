@@ -1,8 +1,9 @@
 import LRU from 'lru-cache';
 import cluster from 'cluster';
-import objecthash from 'object-hash';
 import { Result, Ok, Err } from 'ts-results';
 import { nanoid } from 'nanoid';
+import { createHash } from 'crypto';
+import bfj from 'bfj';
 export interface LruCacheConfiguration<K, V> extends LRU.Options<K, V> {
   isWorker: boolean;
   enabled: boolean;
@@ -170,9 +171,13 @@ export class LruCache<P, V> {
     return this.isWorker ? Err.EMPTY : Ok.EMPTY;
   }
 
-  public hash(payload: unknown): Result<string, Error> {
+  public async hash(payload: unknown): Promise<Result<string, Error>> {
     try {
-      return Ok(objecthash(payload));
+      return Ok(
+        createHash('sha1')
+          .update(await bfj.stringify(payload), 'utf8')
+          .digest('base64'),
+      );
     } catch (e) {
       return Err(e);
     }
@@ -248,7 +253,7 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        return this.hash(payload)
+        return (await this.hash(payload))
           .andThen((hash) => Ok(this.cache.get(hash)))
           .andThen((value) => this.response(LruCacheMessageResult.of<V>(id, value)))
           .andThen((response) => Ok(response.value));
@@ -283,7 +288,7 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        return this.hash(payload)
+        return (await this.hash(payload))
           .andThen((hash) => Ok(this.cache.set(hash, value)))
           .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
           .andThen((response) => Ok(response.value));
@@ -319,7 +324,7 @@ export class LruCache<P, V> {
     if (isEnabled.ok) {
       const isMaster = this.isMaster();
       if (isMaster.ok) {
-        return this.hash(payload)
+        return (await this.hash(payload))
           .andThen((hash) => Ok(this.cache.has(hash)))
           .andThen((value) => this.response(LruCacheMessageResult.of<boolean>(id, value)))
           .andThen((response) => Ok(response.value));
