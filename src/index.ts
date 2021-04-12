@@ -176,7 +176,7 @@ export class LruCache<P, V> {
       return Ok(
         createHash('sha1')
           .update(await bfj.stringify(payload), 'utf8')
-          .digest('base64'),
+          .digest('hex'),
       );
     } catch (e) {
       return Err(e);
