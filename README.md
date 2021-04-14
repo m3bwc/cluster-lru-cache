@@ -12,23 +12,24 @@ import cluster from 'cluster';
 import { LruCache } from 'cluster-lru-cache';
 import { cpus } from 'os';
 
-const numCPUs = cpus().length;
+const maxForks = cpus().length;
 
-const LRU = (isWorker: boolean) => new LruCache({
-  isWorker,
-  enabled: true,
+const LRU = (enabled: boolean) => new LruCache({
+  enabled,
   max: 1000,
   maxAge: 86400 * 1000,
   updateOnGet: true,
 });
 
+const enabled = true;
+
 if(cluster.isMaster) {
   for (let i = 0; i < maxForks; i++) {
     cluster.fork();
   }
-  LRU(cluster.isWorker);
+  LRU(enabled);
 } else {
-  const cache = LRU(cluster.isWorker);
+  const cache = LRU(enabled);
 
   /**
     cache.hash({foo:'bar'});
