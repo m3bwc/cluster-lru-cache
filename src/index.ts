@@ -5,7 +5,8 @@ import { nanoid } from 'nanoid';
 import hash from 'object-hash';
 
 export interface LruCacheConfiguration<K, V> extends LRU.Options<K, V> {
-  isWorker: boolean;
+  //** @deprecated */
+  isWorker?: boolean;
   enabled: boolean;
 }
 
@@ -111,7 +112,7 @@ export class LruCache<P, V> {
 
   public init(config: LruCacheConfiguration<string, V>): void {
     this._enabled = config.enabled;
-    this.isWorker = config.isWorker;
+    this.isWorker = cluster.isWorker;
 
     this.isMaster()
       .andThen(() => {
