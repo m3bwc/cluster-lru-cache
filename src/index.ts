@@ -170,10 +170,11 @@ export class LruCache<P, V> {
   }
 
   private isEnabled(): Result<boolean, Error> {
-    if (!this.cache) {
-      return Err(new Error(`${this.constructor.name} isn't initialized`));
-    }
-    return Ok(this.enabled);
+    return this.isMaster().andThen((isMaster) =>
+      isMaster && !this.cache
+        ? (Err(new Error(`${this.constructor.name} isn't initialized`)) as Result<boolean, Error>)
+        : Ok(this.enabled),
+    );
   }
 
   private isMaster(): Result<boolean, Error> {
@@ -241,10 +242,8 @@ export class LruCache<P, V> {
 
   private request<V, P>(message: LruCacheMessage<V, P>): Result<LruCacheMessage<V, P>, Error> {
     try {
-      if (process.send(message.toJSON())) {
-        return Ok(message);
-      }
-      return Err(new Error(`Message wasn't sent`));
+      process.send(message.toJSON());
+      return Ok(message);
     } catch (e) {
       return Err(e);
     }
@@ -259,7 +258,7 @@ export class LruCache<P, V> {
       .map((isMaster) => {
         if (isMaster) {
           return (message.hash ? Ok(message.hash) : this.hash(message.payload))
-            .andThen((hash) => Ok(this.cache[message.action.substr(0, 3)](hash)))
+            .andThen((hash) => Ok(this.cache[message.action.substr(0, 3)](hash, message.value)))
             .andThen((value) => this.response(LruCacheMessageResult.of<FV>(id, value)))
             .map((response) => response.value);
         } else {
