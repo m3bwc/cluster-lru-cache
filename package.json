@@ -1,6 +1,6 @@
 {
   "name": "cluster-lru-cache",
-  "version": "0.2.6",
+  "version": "1.0.0",
   "description": "Cache service realization in clustered systems",
   "main": "index.js",
   "scripts": {
