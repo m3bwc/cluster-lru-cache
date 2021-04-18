@@ -192,6 +192,14 @@ export class LruCache<P, V> {
     }
   }
 
+  public async hashAsync(payload: unknown): Promise<Result<string, Error>> {
+    try {
+      return Ok(hash(payload));
+    } catch (e) {
+      return Err(e);
+    }
+  }
+
   public setStatus(payload: boolean): Result<boolean, Error> {
     return this.isMaster().andThen((isMaster) => {
       if (isMaster) {
