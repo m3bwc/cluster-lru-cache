@@ -169,7 +169,7 @@ export class LruCache<P, V> {
     });
   }
 
-  private isEnabled(): Result<boolean, Error> {
+  protected isEnabled(): Result<boolean, Error> {
     return this.isMaster().andThen((isMaster) =>
       isMaster && !this.cache
         ? (Err(new Error(`${this.constructor.name} isn't initialized`)) as Result<boolean, Error>)
@@ -177,7 +177,7 @@ export class LruCache<P, V> {
     );
   }
 
-  private isMaster(): Result<boolean, Error> {
+  protected isMaster(): Result<boolean, Error> {
     if (typeof this.isWorker === 'undefined') {
       return Err(new Error('Undefined behaviour while checking isMaster or isWorker'));
     }
