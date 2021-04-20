@@ -172,7 +172,7 @@ export class LruCache<P, V> {
             this.request(LruCacheMessage.of<V, P>(message))
               .map((message) => {
                 const returnResponse = (msg: Maybe<LruCacheMessageResult<FV>>): void => {
-                  if (msg?.id === message.id) {
+                  if (LruCacheMessageResult.isMessageResult(msg) && msg?.id === message.id) {
                     process.removeListener('message', returnResponse);
                     resolve(Ok(msg.value));
                   }
