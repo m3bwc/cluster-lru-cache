@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { LRU_CACHE_MESSAGE_RESULT_NAME } from '../../src/types';
 import { LruCacheMessageResult } from '../../src/messages';
 
 describe('LruCacheMessageResult', () => {
@@ -19,6 +20,10 @@ describe('LruCacheMessageResult', () => {
   it('should has toJSON method', () => {
     const message = LruCacheMessageResult.of('uniqueid', true);
     expect(message.toJSON).toBeDefined();
-    expect(message.toJSON()).toEqual({ id: 'uniqueid', value: true });
+    expect(message.toJSON()).toEqual({
+      id: 'uniqueid',
+      name: LRU_CACHE_MESSAGE_RESULT_NAME,
+      value: true,
+    });
   });
 });
