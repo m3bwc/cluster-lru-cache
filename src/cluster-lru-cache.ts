@@ -75,8 +75,10 @@ export class LruCache<P, V> {
   protected isEnabled(): Result<boolean, Error> {
     return this.isMaster().andThen((isMaster) =>
       isMaster && !this.cache
-        ? (Err(new Error(`${this.constructor.name} isn't initialized`)) as Result<boolean, Error>)
-        : Ok(this.enabled),
+        ? Err(new Error(`${this.constructor.name} isn't initialized`))
+        : this.enabled
+        ? Ok(this.enabled)
+        : Err(new Error('${this.constructor.name} is disabled')),
     );
   }
 
