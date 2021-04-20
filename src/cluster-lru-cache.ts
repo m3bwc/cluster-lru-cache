@@ -45,7 +45,7 @@ export class LruCache<P, V> {
                     return this.setByHash(msg.hash, msg.value, msg.id);
                   }
                   case LruCacheAction.SET_STATUS: {
-                    return this.setStatus(Boolean(msg.payload));
+                    return this.setStatus(Boolean(msg.payload), msg.id);
                   }
                   case LruCacheAction.RESET: {
                     return this.reset();
@@ -103,16 +103,11 @@ export class LruCache<P, V> {
     }
   }
 
-  public setStatus(payload: boolean): Result<boolean, Error> {
+  public setStatus(payload: boolean, id?: string): Result<boolean, Error> {
     return this.isMaster().andThen((isMaster) => {
       if (isMaster) {
         this._enabled = payload;
-        return this.response(
-          LruCacheMessage.of<never, boolean>({
-            payload,
-            action: LruCacheAction.SET_STATUS,
-          }),
-        ).map(() => payload);
+        return this.response(LruCacheMessageResult.of<boolean>(id, payload)).map(() => payload);
       } else {
         return this.request(
           LruCacheMessage.of<never, boolean>({
@@ -139,8 +134,8 @@ export class LruCache<P, V> {
   }
 
   private response<RV>(
-    result: LruCacheMessageResult<RV> | LruCacheMessage<never, RV>,
-  ): Result<LruCacheMessageResult<RV> | LruCacheMessage<never, RV>, Error> {
+    result: LruCacheMessageResult<RV>,
+  ): Result<LruCacheMessageResult<RV>, Error> {
     try {
       for (const id in cluster.workers) {
         cluster.workers[id].send(result.toJSON());
