@@ -159,7 +159,7 @@ export class LruCache<P, V> {
     }
   }
 
-  private async folder<FV>(
+  private async fold<FV>(
     message: LruCacheMessageInterface<V, P>,
     id?: string,
   ): Promise<Result<Maybe<FV>, Error>> {
@@ -191,26 +191,26 @@ export class LruCache<P, V> {
   }
 
   public async get(payload: P, id?: string): Promise<Result<Maybe<V>, Error>> {
-    return this.folder({ payload, action: LruCacheAction.GET }, id);
+    return this.fold({ payload, action: LruCacheAction.GET }, id);
   }
 
   public async set(payload: P, value: V, id?: string): Promise<Result<boolean, Error>> {
-    return this.folder<boolean>({ payload, value, action: LruCacheAction.SET }, id);
+    return this.fold<boolean>({ payload, value, action: LruCacheAction.SET }, id);
   }
 
   public async has(payload: P, id?: string): Promise<Result<boolean, Error>> {
-    return this.folder<boolean>({ payload, action: LruCacheAction.HAS }, id);
+    return this.fold<boolean>({ payload, action: LruCacheAction.HAS }, id);
   }
 
   public async getByHash(hash: string, id?: string): Promise<Result<Maybe<V>, Error>> {
-    return this.folder({ hash, action: LruCacheAction.GET_BY_HASH }, id);
+    return this.fold({ hash, action: LruCacheAction.GET_BY_HASH }, id);
   }
 
   public async setByHash(hash: string, value: V, id?: string): Promise<Result<boolean, Error>> {
-    return this.folder<boolean>({ hash, value, action: LruCacheAction.SET_BY_HASH }, id);
+    return this.fold<boolean>({ hash, value, action: LruCacheAction.SET_BY_HASH }, id);
   }
 
   public async hasByHash(hash: string, id?: string): Promise<Result<boolean, Error>> {
-    return this.folder<boolean>({ hash, action: LruCacheAction.HAS_BY_HASH }, id);
+    return this.fold<boolean>({ hash, action: LruCacheAction.HAS_BY_HASH }, id);
   }
 }
