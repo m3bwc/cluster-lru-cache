@@ -9,13 +9,23 @@ export class LruCache<P, V> {
   private cache: LRU<string, V>;
   private isWorker: boolean;
   private _enabled: boolean;
+  private _serviceName: string;
   public get enabled(): boolean {
     return this._enabled;
+  }
+
+  private makeMessage<T, M>(opt: LruCacheMessageInterface<T, M>) {
+    return LruCacheMessage.of<T, M>({ ...opt, serviceName: this._serviceName });
+  }
+
+  private makeMessageResult<T>(id: string, value: T) {
+    return LruCacheMessageResult.of<T>(id, value, this._serviceName);
   }
 
   public init(config: LruCacheConfiguration<string, V>): void {
     this._enabled = config.enabled;
     this.isWorker = cluster.isWorker;
+    this._serviceName = config.serviceName || this.constructor.name;
 
     this.isMaster().andThen((isMaster) => {
       if (isMaster) {
@@ -24,7 +34,7 @@ export class LruCache<P, V> {
         for (const id in cluster.workers) {
           cluster.workers[id].on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
             setImmediate(() => {
-              if (LruCacheMessage.isMessage(msg).ok) {
+              if (LruCacheMessage.isMessage(msg, this._serviceName).ok) {
                 switch (msg.action) {
                   case LruCacheAction.GET: {
                     return this.get(msg.payload, msg.id);
@@ -58,7 +68,7 @@ export class LruCache<P, V> {
       } else {
         process.on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
           setImmediate(() => {
-            if (LruCacheMessage.isMessage(msg)) {
+            if (LruCacheMessage.isMessage(msg, this._serviceName)) {
               switch (msg.action) {
                 case LruCacheAction.SET_STATUS: {
                   this._enabled = Boolean(msg.payload);
@@ -110,11 +120,11 @@ export class LruCache<P, V> {
       if (isMaster) {
         this._enabled = payload;
         return this.response(
-          LruCacheMessage.of<never, boolean>({ payload, action: LruCacheAction.SET_STATUS }),
+          this.makeMessage<never, boolean>({ payload, action: LruCacheAction.SET_STATUS }),
         ).map(() => payload);
       } else {
         return this.request(
-          LruCacheMessage.of<never, boolean>({
+          this.makeMessage<never, boolean>({
             payload,
             action: LruCacheAction.SET_STATUS,
           }),
@@ -129,7 +139,7 @@ export class LruCache<P, V> {
         this.cache.reset();
       } else {
         this.request(
-          LruCacheMessage.of<never, never>({
+          this.makeMessage<never, never>({
             action: LruCacheAction.RESET,
           }),
         ).map(() => Ok.EMPTY);
@@ -169,14 +179,17 @@ export class LruCache<P, V> {
         if (isMaster) {
           return (message.hash ? Ok(message.hash) : this.hash(message.payload))
             .andThen((hash) => Ok(this.cache[message.action.substr(0, 3)](hash, message.value)))
-            .andThen((value) => this.response(LruCacheMessageResult.of<FV>(id, value)))
+            .andThen((value) => this.response(this.makeMessageResult<FV>(id, value)))
             .map((response) => response.value);
         } else {
           return new Promise<Result<FV, Error>>((resolve, reject) => {
-            this.request(LruCacheMessage.of<V, P>(message))
+            this.request(this.makeMessage<V, P>(message))
               .map((message) => {
                 const returnResponse = (msg: Maybe<LruCacheMessageResult<FV>>): void => {
-                  if (LruCacheMessageResult.isMessageResult(msg) && msg?.id === message.id) {
+                  if (
+                    LruCacheMessageResult.isMessageResult(msg, this._serviceName) &&
+                    msg?.id === message.id
+                  ) {
                     process.removeListener('message', returnResponse);
                     resolve(Ok(msg.value));
                   }

@@ -20,6 +20,7 @@ describe('LruCacheMessageResult', () => {
   it('should be defined', () => {
     const message = LruCacheMessage.of({
       action: LruCacheAction.GET,
+      serviceName: 'Test',
     });
     expect(message).toBeDefined();
   });
@@ -30,10 +31,16 @@ describe('LruCacheMessageResult', () => {
       value: 'somevalue',
       payload: 'payload',
       hash: 'fasfnsdnfoenoi23n',
+      serviceName: 'Test',
     };
     const message = LruCacheMessage.of(test_obj);
     expect(message.toJSON).toBeDefined();
-    expect(message.toJSON()).toEqual({ ...test_obj, id: message.id, name: message.name });
+    expect(message.toJSON()).toEqual({
+      ...test_obj,
+      id: message.id,
+      name: message.name,
+      serviceName: 'Test',
+    });
   });
 
   it('should has isMessage method', () => {
@@ -41,11 +48,12 @@ describe('LruCacheMessageResult', () => {
       action: LruCacheAction.GET,
       value: 'somevalue',
       payload: 'payload',
+      serviceName: 'Test',
       hash: 'fasfnsdnfoenoi23n',
     };
     const message = LruCacheMessage.of(test_obj);
     expect(LruCacheMessage.isMessage).toBeDefined();
-    expect(LruCacheMessage.isMessage(message).ok).toBeTruthy();
+    expect(LruCacheMessage.isMessage(message, 'Test').ok).toBeTruthy();
     // @ts-ignore
     expect(LruCacheMessage.isMessage({ ...message, name: 'test' }).ok).toBeFalsy();
     // @ts-ignore
@@ -58,6 +66,7 @@ describe('LruCacheMessageResult', () => {
       value: 'somevalue',
       payload: 'payload',
       hash: 'fasfnsdnfoenoi23n',
+      serviceName: 'Test',
     };
     const message = LruCacheMessage.of(test_obj);
     const message2 = LruCacheMessage.of(test_obj);

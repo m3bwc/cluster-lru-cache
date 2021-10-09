@@ -3,6 +3,7 @@ import {
   LruCacheAction,
   LruCacheMessageInterface,
   LruCacheMessageSign,
+  LruCacheMessageVariative,
   LRU_CACHE_MESSAGE_NAME,
   Maybe,
 } from '../types';
@@ -17,27 +18,37 @@ export class LruCacheMessage<V, P>
   readonly action: LruCacheAction;
   readonly name: string;
   readonly hash: string;
+  readonly serviceName: string;
 
-  private constructor(opt: LruCacheMessageInterface<V, P>) {
+  private constructor(opt: LruCacheMessageInterface<V, P> & LruCacheMessageVariative) {
     this.payload = opt.payload;
     this.value = opt.value;
     this.action = opt.action;
     this.hash = opt.hash;
+    this.serviceName = opt.serviceName;
     this.id = nanoid();
     this.name = LRU_CACHE_MESSAGE_NAME;
   }
 
-  public static of<VS, TS>(opt: LruCacheMessageInterface<VS, TS>): LruCacheMessage<VS, TS> {
+  public static of<VS, TS>(
+    opt: LruCacheMessageInterface<VS, TS> & LruCacheMessageVariative,
+  ): LruCacheMessage<VS, TS> {
     return new LruCacheMessage(opt);
   }
 
-  public static isMessage(opt: Maybe<LruCacheMessage<unknown, unknown>>): Result<void, Error> {
-    return opt?.name === LRU_CACHE_MESSAGE_NAME
+  public static isMessage(
+    opt: Maybe<LruCacheMessage<unknown, unknown>>,
+    serviceName: string,
+  ): Result<void, Error> {
+    return opt?.serviceName === serviceName && opt?.name === LRU_CACHE_MESSAGE_NAME
       ? Ok.EMPTY
       : Err(new Error('Is not an LruCacheMessage'));
   }
 
-  public toJSON(): LruCacheMessageInterface<V, P> & CacheEntity & LruCacheMessageSign {
+  public toJSON(): LruCacheMessageInterface<V, P> &
+    CacheEntity &
+    LruCacheMessageSign &
+    LruCacheMessageVariative {
     return {
       payload: this.payload,
       value: this.value,
@@ -45,6 +56,7 @@ export class LruCacheMessage<V, P>
       action: this.action,
       id: this.id,
       name: this.name,
+      serviceName: this.serviceName,
     };
   }
 }

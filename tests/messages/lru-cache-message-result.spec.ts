@@ -4,7 +4,7 @@ import { LruCacheMessageResult } from '../../src/messages';
 
 describe('LruCacheMessageResult', () => {
   it('should be defined', () => {
-    const message = LruCacheMessageResult.of('uniqueid', true);
+    const message = LruCacheMessageResult.of('uniqueid', true, 'test');
     expect(message).toBeDefined();
   });
 
@@ -18,12 +18,13 @@ describe('LruCacheMessageResult', () => {
   });
 
   it('should has toJSON method', () => {
-    const message = LruCacheMessageResult.of('uniqueid', true);
+    const message = LruCacheMessageResult.of('uniqueid', true, 'test');
     expect(message.toJSON).toBeDefined();
     expect(message.toJSON()).toEqual({
       id: 'uniqueid',
       name: LRU_CACHE_MESSAGE_RESULT_NAME,
       value: true,
+      serviceName: 'test',
     });
   });
 });

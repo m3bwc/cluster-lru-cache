@@ -81,7 +81,7 @@ describe('Lru cache', () => {
     const payload = 'uniquestring';
     const cache = new LruCacheConsumer();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -90,7 +90,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(1);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(Ok);
     expect(result.val).toBeFalsy();
@@ -100,7 +100,7 @@ describe('Lru cache', () => {
     const payload = 'uniquestring';
     const cache = new LruCacheConsumer();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -109,7 +109,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(1);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(Ok);
     expect(result.val).toBeFalsy();
@@ -120,7 +120,7 @@ describe('Lru cache', () => {
     const value = 'find me if you can';
     const cache = new LruCacheConsumer();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -129,7 +129,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(1);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(set).toBeDefined();
     expect(set).toBeInstanceOf(Ok);
     expect(set.val).toBeTruthy();
@@ -146,7 +146,7 @@ describe('Lru cache', () => {
     const cache = new LruCacheConsumer();
     const hash = cache.hash(payload).unwrap();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -155,7 +155,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(0);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(Ok);
     expect(result.val).toBeFalsy();
@@ -166,7 +166,7 @@ describe('Lru cache', () => {
     const cache = new LruCacheConsumer();
     const hash = cache.hash(payload).unwrap();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -175,7 +175,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(0);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(Ok);
     expect(result.val).toBeFalsy();
@@ -187,7 +187,7 @@ describe('Lru cache', () => {
     const cache = new LruCacheConsumer();
     const hash = cache.hash(payload).unwrap();
     const hashSpy = jest.spyOn(cache as any, 'hash');
-    const folderSpy = jest.spyOn(cache as any, 'folder');
+    const foldSpy = jest.spyOn(cache as any, 'fold');
     const isMasterSpy = jest.spyOn(cache as any, 'isMaster');
     const isResponseSpy = jest.spyOn(cache as any, 'response');
     cache.init({ enabled: true });
@@ -196,7 +196,7 @@ describe('Lru cache', () => {
     expect(isResponseSpy).toHaveBeenCalledTimes(1);
     expect(isMasterSpy).toHaveBeenCalledTimes(3);
     expect(hashSpy).toHaveBeenCalledTimes(0);
-    expect(folderSpy).toHaveBeenCalledTimes(1);
+    expect(foldSpy).toHaveBeenCalledTimes(1);
     expect(set).toBeDefined();
     expect(set).toBeInstanceOf(Ok);
     expect(set.val).toBeTruthy();

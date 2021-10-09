@@ -4,6 +4,7 @@ export interface LruCacheConfiguration<K, V> extends LRU.Options<K, V> {
   //** @deprecated */
   isWorker?: boolean;
   enabled: boolean;
+  serviceName?: string;
 }
 
 export type Maybe<T> = T | undefined;
@@ -30,8 +31,12 @@ export interface LruCacheMessageInterface<V, P> {
   readonly action: LruCacheAction;
 }
 
+export interface LruCacheMessageVariative {
+  readonly serviceName: string;
+}
+
 export interface LruCacheMessageSign {
-  name: string;
+  readonly name: string;
 }
 
 export const LRU_CACHE_MESSAGE_NAME = 'LruCacheMessage';
