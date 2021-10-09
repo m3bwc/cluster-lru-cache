@@ -24,7 +24,7 @@ export class LruCache<P, V> {
         for (const id in cluster.workers) {
           cluster.workers[id].on('message', (msg: Maybe<LruCacheMessage<V, P>>) => {
             setImmediate(() => {
-              if (LruCacheMessage.isMessage(msg)) {
+              if (LruCacheMessage.isMessage(msg).ok) {
                 switch (msg.action) {
                   case LruCacheAction.GET: {
                     return this.get(msg.payload, msg.id);
